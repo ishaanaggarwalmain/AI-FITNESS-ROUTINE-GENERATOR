@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+from groq import Groq
 
 st.title("🏋️‍♂️ AI Fitness Routine Generator")
 st.write("Enter your details below to get a personalized weekly workout plan.")
@@ -26,13 +26,16 @@ else:
 if st.button("Generate My Workout Plan"):
     st.subheader(f"📊 Your Stats: BMI is {bmi} | Recommended: {split}")
     
-    # Replace with your free key from aistudio.google.com when running locally
-    client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
+    # Paste your gsk_... key from console.groq.com/keys when testing on your laptop
+    client = Groq(api_key="YOUR_GROQ_API_KEY")
     prompt = f"""
     Create a {days}-day {split} workout table for a {age}-year-old {level} 
     with BMI {bmi}. Goal: {goal}. Equipment allowed: {equipment} ONLY.
     Show Day, Exercise Name, Sets, Reps, and Rest time in a clean Markdown table.
     """
     with st.spinner("Generating your personalized plan..."):
-        response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        st.markdown(response.text)
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        st.markdown(response.choices[0].message.content)
